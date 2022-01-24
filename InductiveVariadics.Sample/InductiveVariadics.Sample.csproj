@@ -11,5 +11,9 @@
     <ProjectReference Include="..\InductiveVariadics.Attributes\InductiveVariadics.Attributes.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
+  </ItemGroup>
+
 
 </Project>

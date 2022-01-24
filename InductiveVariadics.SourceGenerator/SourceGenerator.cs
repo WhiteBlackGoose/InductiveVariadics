@@ -70,18 +70,14 @@ public sealed class VariadicGenerator : ISourceGenerator
 
         var calls = new Dictionary<(string Name, int Arity), Induction>();
 
-        foreach (var list in receiver!.ArgumentSyntaxes)
+        foreach (var invocation in receiver!.Invocations)
         {
-            var model = context.Compilation.GetSemanticModel(list.SyntaxTree);
-            var symbol = model.GetSymbolInfo(list.Parent!).Symbol;
-
-            if (list.Expression is InvocationExpressionSyntax invocation)
-                if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-                    if (variadicMethodBuilder.TryGetValue(memberAccess.Name.Identifier.ToString(), out var builder))
-                    {
-                        var count = invocation.ArgumentList.Arguments.Count;
-                        calls[(memberAccess.Name.Identifier.ToString(), count)] = builder.ToInduction();
-                    }
+            if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+                if (variadicMethodBuilder.TryGetValue(memberAccess.Name.Identifier.ToString(), out var builder))
+                {
+                    var count = invocation.ArgumentList.Arguments.Count;
+                    calls[(memberAccess.Name.Identifier.ToString(), count)] = builder.ToInduction();
+                }
         }
 
         foreach (var ((name, arity), ((baseType, baseMethod), transition, (finalType, finalMethod))) in calls)
@@ -116,37 +112,37 @@ partial class {classType.Name}
 
     public void Initialize(GeneratorInitializationContext context)
     {
-        #if DEBUG
-                    if (!Debugger.IsAttached)
-                    {
-                        Debugger.Launch();
-                    }
-        #endif 
+         #if DEBUG && false
+         if (!Debugger.IsAttached)
+         {
+             Debugger.Launch();
+         }
+         #endif 
         context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
     }
 
     private sealed class SyntaxReceiver : ISyntaxContextReceiver
     {
-        private readonly List<ArgumentSyntax> _typeArgumentLists;
+        private readonly List<InvocationExpressionSyntax> _invocations;
         private readonly List<MethodDeclarationSyntax> _methodsWithInductionAttributes;
 
         public SyntaxReceiver()
         {
-            _typeArgumentLists = new();
+            _invocations = new();
             _methodsWithInductionAttributes = new();
         }
 
-        public IReadOnlyList<ArgumentSyntax> ArgumentSyntaxes
-            => _typeArgumentLists;
+        public IReadOnlyList<InvocationExpressionSyntax> Invocations
+            => _invocations;
 
         public IReadOnlyList<MethodDeclarationSyntax> MethodsWithAttributes
             => _methodsWithInductionAttributes;
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
-            if (context.Node is ArgumentSyntax args)
+            if (context.Node is InvocationExpressionSyntax args)
             {
-                _typeArgumentLists.Add(args);
+                _invocations.Add(args);
             }
             else if (context.Node is MethodDeclarationSyntax method && method.AttributeLists.Count > 0)
             {
