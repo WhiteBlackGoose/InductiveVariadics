@@ -19,6 +19,24 @@ public static class ree
 [Generator]
 public sealed class VariadicGenerator : ISourceGenerator
 {
+    internal record struct Sequence<T>(IEnumerable<T> Seq) where T : notnull
+    {
+        public bool Equals(Sequence<T> other)
+        {
+            return Seq.SequenceEqual(other.Seq);
+        }
+
+        // TODO
+        public override int GetHashCode()
+        {
+            var sum = 0;
+            foreach (var el in Seq)
+                sum += el.GetHashCode();
+            return sum;
+        }
+
+    }
+
     internal sealed class InductionBuilder
     {
         public (ITypeSymbol, IMethodSymbol)? Base { get; set; }
@@ -68,32 +86,47 @@ public sealed class VariadicGenerator : ISourceGenerator
             }
         }
 
-        var calls = new Dictionary<(string Name, int Arity), Induction>();
+        var calls = new Dictionary<(string Name, Sequence<ITypeSymbol>?, int Arity), Induction>();
 
         foreach (var invocation in receiver!.Invocations)
         {
             if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
                 if (variadicMethodBuilder.TryGetValue(memberAccess.Name.Identifier.ToString(), out var builder))
                 {
+                    var induction = builder.ToInduction();
+                    Sequence<ITypeSymbol>? types = null;
+                    if (!induction.Transition.IsGenericMethod)
+                    {
+                        var model = context.Compilation.GetSemanticModel(invocation.ArgumentList.Arguments[0].SyntaxTree);
+                        var operation = model.GetOperation(invocation);
+                        types = new(operation?.Children.Skip(1).Select(c => c.Type ?? throw new("It's null!!!")) ?? throw new("It's null!!!"));
+                    }
                     var count = invocation.ArgumentList.Arguments.Count;
-                    calls[(memberAccess.Name.Identifier.ToString(), count)] = builder.ToInduction();
+                    calls[(memberAccess.Name.Identifier.ToString(), types, count)] = induction;
                 }
         }
 
-        foreach (var ((name, arity), ((baseType, baseMethod), transition, (finalType, finalMethod))) in calls)
+        foreach (var ((name, types, arity), ((baseType, baseMethod), transition, (finalType, finalMethod))) in calls)
         {
             var classType = baseMethod.ContainingType;
 
-            var types = 
+            var typeParameters = 
                 transition.IsGenericMethod
                 ? ("<" + string.Join(", ",
                 Enumerable.Range(1, arity)
                     .Select(x => $"T{x}")) + ">")
                 : "";
 
-            var parameters = string.Join(", ",
-                Enumerable.Range(1, arity)
-                    .Select(x => transition.IsGenericMethod ? $"T{x} value{x}" : $"{baseType.ToDisplayString()} value{x}"));
+            var parameters = "";
+            if (transition.IsGenericMethod)
+            {
+                parameters = string.Join(", ", Enumerable.Range(1, arity).Select(x => $"T{x} value{x}"));
+            }
+            else if (types is { } validTypes)
+            {
+                parameters = string.Join(", ", validTypes.Seq.Select((x, i) => $"{x.ToDisplayString()} value{i + 1}"));
+            }
+
             var steps =
                 Enumerable.Range(1, arity)
                 .Select(c => $"value = {transition.Name}(value{c}, value);\n");
@@ -101,7 +134,7 @@ public sealed class VariadicGenerator : ISourceGenerator
 $@"
 partial class {classType.Name}
 {{
-    public static {finalType.ToDisplayString()} {name}{types}({parameters})
+    public static {finalType.ToDisplayString()} {name}{typeParameters}({parameters})
     {{
         var value = {baseMethod.Name}();
         {string.Join("", steps)}

@@ -72,34 +72,9 @@ Voila!
 ## Examples
 
 
-### String concatenation
+### Add integers
 
-```cs
-Console.WriteLine(Stuff.Concat(1, 2.56f, "aaa", 4343));
-
-partial class Stuff
-{
-    [InductionBaseOf("Concat")]
-    public static StringBuilder ConcatBase() => new();
-
-    [InductionTransitionOf("Concat")]
-    public static StringBuilder ConcatTransition<T>(T value, StringBuilder folded)
-    {
-        if (typeof(T) == typeof(int))
-            folded.Append((int)((object)value!)!);
-        else if (typeof(T) == typeof(float))
-            folded.Append((float)((object)value!)!);
-        else
-            folded.Append(value);
-        return folded;
-    }
-
-    [InductionFinalizationOf("Concat")]
-    public static string ConcatFinalize(StringBuilder sb) => sb.ToString();
-}
-```
-
-### Summation of integers
+The simplest case to add n integers.
 
 ```cs
 Console.WriteLine(Arithmetics.Add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
@@ -134,6 +109,72 @@ we get:
 |------------- |----------:|----------:|----------:|-------:|----------:|
 | AddVariadics |  8.241 ns | 0.2033 ns | 0.4199 ns |      - |         - |
 |    AddParams | 28.389 ns | 0.6595 ns | 1.9133 ns | 0.0459 |     144 B |
+
+### Concat objects
+
+To avoid boxing we want to call StringBuilder's overloads for int, double, etc.
+
+So we make multiple overloads for transition.
+
+```cs
+Console.WriteLine(Stuff.Concat(1, 2.56f, "aaa", 4343));
+
+partial class Stuff
+{
+    [InductionBaseOf("Concat")]
+    public static StringBuilder ConcatBase() => new(200);
+
+
+
+    [InductionTransitionOf("Concat")]
+    public static StringBuilder ConcatTransition(string value, StringBuilder folded)
+        => folded.Append(value);
+
+    [InductionTransitionOf("Concat")]
+    public static StringBuilder ConcatTransition(int value, StringBuilder folded)
+        => folded.Append(value);
+
+    [InductionTransitionOf("Concat")]
+    public static StringBuilder ConcatTransition(float value, StringBuilder folded)
+        => folded.Append(value);
+
+    [InductionTransitionOf("Concat")]
+    public static StringBuilder ConcatTransition(double value, StringBuilder folded)
+        => folded.Append(value);
+
+
+
+    [InductionFinalizationOf("Concat")]
+    public static string ConcatFinalize(StringBuilder sb) => sb.ToString();
+}
+```
+
+### Sum sizes of objects and print them
+
+Finally, the most advanced case is to make transition generic.
+
+```cs
+Console.WriteLine(Sizes.CountSizes(0, 1.2, 3.3m));
+
+partial class Sizes
+{
+    [InductionBaseOf("CountSizes")]
+    public static int CountBase() => 0;
+
+
+    [InductionTransitionOf("CountSizes")]
+    public static int CountTransition<T>(T value, int folded)
+    {
+        System.Console.WriteLine($"Size of {value} is {Marshal.SizeOf<T>()}");
+        return Marshal.SizeOf<T>() + folded;
+    }
+
+    [InductionFinalizationOf("CountSizes")]
+    public static int CountFinalization(int folded) => folded;
+}
+
+}
+```
 
 ## Inspiration
 
