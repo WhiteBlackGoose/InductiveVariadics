@@ -9,8 +9,6 @@ using InductiveVariadics;
 
 
 // Console.WriteLine(Stuff.Concat(1, 2.56f, "aaa", 4343));
-// Console.WriteLine(new Bench().StringInteropation());
-// Console.WriteLine(new Bench().VariadicConcat());
 BenchmarkRunner.Run<Bench>();
 // Console.WriteLine(Arithmetics.Add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
 // Console.WriteLine(Arithmetics.AddNaive(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
