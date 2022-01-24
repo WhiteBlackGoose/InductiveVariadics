@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
@@ -10,13 +11,40 @@ using InductiveVariadics;
 // Console.WriteLine(Stuff.Concat(1, 2.56f, "aaa", 4343));
 // Console.WriteLine(new Bench().StringInteropation());
 // Console.WriteLine(new Bench().VariadicConcat());
-// Console.WriteLine(new Bench().StringInteropation());
 BenchmarkRunner.Run<Bench>();
+// Console.WriteLine(Arithmetics.Add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+// Console.WriteLine(Arithmetics.AddNaive(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+// Console.WriteLine(new Bench().AddParams());
+// Console.WriteLine(new Bench().AddVariadics());
+
+partial class Arithmetics
+{
+    [InductionBaseOf("Add"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int AddBase() => 0;
+
+
+
+    [InductionTransitionOf("Add"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int AddTransition(int head, int folded) => head + folded;
+
+
+
+    [InductionFinalizationOf("Add"), MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int AddFinalization(int folded) => folded;
+
+    public static int AddNaive(params int[] ints)
+    {
+        var a = 0;
+        foreach (var i in ints)
+            a += i;
+        return a;
+    }
+}
 
 partial class Stuff
 {
     [InductionBaseOf("Concat")]
-    public static StringBuilder ConcatBase() => new();
+    public static StringBuilder ConcatBase() => new(200);
 
 
 
@@ -38,20 +66,14 @@ partial class Stuff
     public static string ConcatFinalize(StringBuilder sb) => sb.ToString();
 }
 
+[MemoryDiagnoser]
 public class Bench
 {
-    private int    value1 = 3;
-    private float  value2 = 5.5f;
-    private string value3 = "hehehe";
-    private int    value4 = 24525;
-    private float  value5 = 323.2425252f;
-    private string value6 = "Ohnoooo";
+    [Benchmark]
+    public int AddVariadics()
+        => Arithmetics.Add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
     [Benchmark]
-    public string StringInteropation()
-        => $"{value1}{value2}{value3}{value4}{value5}{value6}{value1}{value2}{value3}{value4}{value5}{value6}";
-
-    [Benchmark]
-    public string VariadicConcat()
-        => Stuff.Concat(value1, value2, value3, value4, value5, value6, value1, value2, value3, value4, value5, value6);
+    public int AddParams()
+        => Arithmetics.AddNaive(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 }

@@ -83,12 +83,17 @@ public sealed class VariadicGenerator : ISourceGenerator
         foreach (var ((name, arity), ((baseType, baseMethod), transition, (finalType, finalMethod))) in calls)
         {
             var classType = baseMethod.ContainingType;
-            var types = string.Join(", ",
+
+            var types = 
+                transition.IsGenericMethod
+                ? ("<" + string.Join(", ",
                 Enumerable.Range(1, arity)
-                    .Select(x => $"T{x}"));
+                    .Select(x => $"T{x}")) + ">")
+                : "";
+
             var parameters = string.Join(", ",
                 Enumerable.Range(1, arity)
-                    .Select(x => $"T{x} value{x}"));
+                    .Select(x => transition.IsGenericMethod ? $"T{x} value{x}" : $"{baseType.ToDisplayString()} value{x}"));
             var steps =
                 Enumerable.Range(1, arity)
                 .Select(c => $"value = {transition.Name}(value{c}, value);\n");
@@ -96,7 +101,7 @@ public sealed class VariadicGenerator : ISourceGenerator
 $@"
 partial class {classType.Name}
 {{
-    public static {finalType.ToDisplayString()} {name}<{types}>({parameters})
+    public static {finalType.ToDisplayString()} {name}{types}({parameters})
     {{
         var value = {baseMethod.Name}();
         {string.Join("", steps)}
