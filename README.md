@@ -1,3 +1,5 @@
+> **Warning**: this is no more than a proof of concept repo
+
 # Inductive Variadics
 
 Variadic arguments for C# with inductive declaration. Made via C# 9's source generators.
@@ -132,3 +134,7 @@ we get:
 |------------- |----------:|----------:|----------:|-------:|----------:|
 | AddVariadics |  8.241 ns | 0.2033 ns | 0.4199 ns |      - |         - |
 |    AddParams | 28.389 ns | 0.6595 ns | 1.9133 ns | 0.0459 |     144 B |
+
+## Inspiration
+
+This proof of concept is inspired by [**this**](https://github.com/FiniteReality/VariadicGenerics) project by [FiniteReality](https://github.com/FiniteReality).
