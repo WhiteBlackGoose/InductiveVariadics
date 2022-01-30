@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Debug",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build debug",
+            "program": "${workspaceFolder}/InductiveVariadics.Sample/bin/Debug/net6.0/InductiveVariadics.Sample.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/InductiveVariadics.Sample",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "C# Benchmark",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build solution release",
+            "program": "${workspaceFolder}/CSharpBenchmark/bin/release/net6.0/CSharpBenchmark.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/CSharpBenchmark",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "F# Benchmark",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build solution release",
+            "program": "${workspaceFolder}/FSharpBenchmark/bin/release/net6.0/FSharpBenchmark.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/FSharpBenchmark",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}

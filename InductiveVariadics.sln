@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InductiveVariadics.SourceGe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InductiveVariadics.Attributes", "InductiveVariadics.Attributes\InductiveVariadics.Attributes.csproj", "{CC063976-1566-4FF8-AE71-90A083EE4E8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpBenchmark", "CSharpBenchmark\CSharpBenchmark.csproj", "{5B31455C-D6C2-4B22-9924-045875B14AB6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpBenchmark", "FSharpBenchmark\FSharpBenchmark.fsproj", "{F9EF0946-0AD2-4CEB-B135-4D7F2FB0936A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{CC063976-1566-4FF8-AE71-90A083EE4E8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC063976-1566-4FF8-AE71-90A083EE4E8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC063976-1566-4FF8-AE71-90A083EE4E8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B31455C-D6C2-4B22-9924-045875B14AB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B31455C-D6C2-4B22-9924-045875B14AB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B31455C-D6C2-4B22-9924-045875B14AB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B31455C-D6C2-4B22-9924-045875B14AB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9EF0946-0AD2-4CEB-B135-4D7F2FB0936A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9EF0946-0AD2-4CEB-B135-4D7F2FB0936A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9EF0946-0AD2-4CEB-B135-4D7F2FB0936A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9EF0946-0AD2-4CEB-B135-4D7F2FB0936A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
